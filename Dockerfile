@@ -1,6 +1,4 @@
 #
-# Java Dockerfile
-#
 # Based off of https://github.com/dockerfile/java
 #
 
@@ -16,14 +14,25 @@ RUN \
   apt-get update && \
   apt-get install -y oracle-java7-installer
 
-#Jetty
+# Define JETTY_VERSION
+ENV JETTY_VERSION 8.1.15.v20140411
+
+# Jetty
 RUN adduser --system jetty
+
 RUN mkdir /opt/jetty
 
-# Assumes jetty.tar.gz and jpetstore.war are next to this Dockerfile
-ADD jetty.tar.gz /opt/jetty
+# Install wget
+RUN apt-get install wget -y
+
+# Grab jetty
+RUN wget -O /tmp/jetty.tar.gz http://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/$JETTY_VERSION/jetty-distribution-$JETTY_VERSION.tar.gz
+
+# Untar and place in /opt/jetty
+RUN tar xfz /tmp/jetty.tar.gz -C /tmp; cp -Rf /tmp/jetty-distribution-$JETTY_VERSION/* /opt/jetty
 
 RUN chown -R jetty /opt/jetty
 
+
 # Define default command.
-CMD ["/opt/jetty/jetty-distribution-8.1.15.v20140411/bin/jetty.sh", "-d", "run"]
+CMD ["/opt/jetty/bin/jetty.sh", "run"]
